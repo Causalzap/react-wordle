@@ -1,22 +1,25 @@
 import './index.css'
-
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client' // 只需要这个
 
 import App from './App'
 import { AlertProvider } from './context/AlertContext'
 import reportWebVitals from './reportWebVitals'
 
-ReactDOM.render(
-  <React.StrictMode>
-    <AlertProvider>
-      <App />
-    </AlertProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
-)
+// 1. 获取 DOM 容器
+const container = document.getElementById('root')
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+// 2. 创建 root 并渲染
+if (container) {
+  const root = createRoot(container)
+  root.render(
+    <React.StrictMode>
+      <AlertProvider>
+        <App />
+      </AlertProvider>
+    </React.StrictMode>
+  )
+}
+
+// 性能监测
 reportWebVitals()

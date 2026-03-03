@@ -68,7 +68,12 @@ export const DatePickerModal = ({
           maxDate={getYesterday()}
           selected={selectedDate}
           excludeDates={excludedDates}
-          onChange={(date: Date) => setSelectedDate(startOfDay(date))}
+          onChange={(date: Date | null) => {
+            if (date) {
+              setSelectedDate(startOfDay(date))
+            }
+          }}
+
           inline
           popperClassName="react-datepicker-left"
           renderCustomHeader={({
