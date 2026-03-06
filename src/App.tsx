@@ -56,13 +56,32 @@ import {
 
 function App() {
   const isLatestGame = getIsLatestGame()
-  const gameDate = getGameDate()
+  const gameDate = getGameDate() // Date | null
+  const isFutureGame = gameDate === null
+
+  if (isFutureGame) {
+    return (
+      <Div100vh>
+        <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+          <h2 className="text-2xl font-bold">Puzzle not released yet</h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
+            Please come back on the listed date.
+          </p>
+        </div>
+      </Div100vh>
+    )
+  }
+
+  // TS 收窄：从这里开始 gameDate 一定是 Date
+  if (!gameDate) return null
+
   const prefersDarkMode = window.matchMedia(
     '(prefers-color-scheme: dark)'
   ).matches
 
   const { showError: showErrorAlert, showSuccess: showSuccessAlert } =
     useAlert()
+
   const [currentGuess, setCurrentGuess] = useState('')
   const [isGameWon, setIsGameWon] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
@@ -83,6 +102,7 @@ function App() {
     getStoredIsHighContrastMode()
   )
   const [isRevealing, setIsRevealing] = useState(false)
+
   const [guesses, setGuesses] = useState<string[]>(() => {
     const loaded = loadGameStateFromLocalStorage(isLatestGame)
     if (loaded?.solution !== solution) {
@@ -110,8 +130,6 @@ function App() {
   )
 
   useEffect(() => {
-    // if no game state on load,
-    // show the user the how-to info modal
     if (!loadGameStateFromLocalStorage(true)) {
       setTimeout(() => {
         setIsInfoModalOpen(true)
@@ -223,7 +241,6 @@ function App() {
       })
     }
 
-    // enforce hard mode - all guesses must contain all previously revealed letters
     if (isHardMode) {
       const firstMissingReveal = findFirstUnusedReveal(currentGuess, guesses)
       if (firstMissingReveal) {
@@ -235,8 +252,6 @@ function App() {
     }
 
     setIsRevealing(true)
-    // turn this back off after all
-    // chars have been revealed
     setTimeout(() => {
       setIsRevealing(false)
     }, REVEAL_TIME_MS * solution.length)

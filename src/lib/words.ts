@@ -138,23 +138,27 @@ export const getSolution = (gameDate: Date) => {
   }
 }
 
-export const getGameDate = () => {
-  if (getIsLatestGame()) {
-    return getToday()
-  }
+export const getGameDate = (): Date | null => {
+  if (getIsLatestGame()) return getToday()
 
   const parsed = queryString.parse(window.location.search)
+
   try {
     const d = startOfDay(parseISO(parsed.d!.toString()))
-    if (d >= getToday() || d < firstGameDate) {
-      setGameDate(getToday())
-    }
+
+    // 太早：回到最新
+    if (d < firstGameDate) return getToday()
+
+    // 未来：不允许玩，返回 null（关键）
+    if (d > getToday()) return null
+
     return d
   } catch (e) {
     console.log(e)
     return getToday()
   }
 }
+
 
 export const setGameDate = (d: Date) => {
   try {
@@ -176,5 +180,9 @@ export const getIsLatestGame = () => {
   return parsed === null || !('d' in parsed)
 }
 
+const gd = getGameDate()
 export const { solution, solutionGameDate, solutionIndex, tomorrow } =
-  getSolution(getGameDate())
+  getSolution(gd ?? getToday())
+
+export const isFutureGame = gd === null
+
