@@ -130,12 +130,24 @@ function App() {
   )
 
   useEffect(() => {
-    if (!loadGameStateFromLocalStorage(true)) {
-      setTimeout(() => {
-        setIsInfoModalOpen(true)
-      }, WELCOME_INFO_MODAL_MS)
+    // 1. 优先读取 URL 中的 tutorial 参数
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('tutorial') === 'false') {
+      return; // 如果 URL 里带了 tutorial=false，直接退出，绝对不弹窗！
     }
-  })
+
+    // 2. 加上 try...catch 防止 iframe 跨域报错卡死
+    try {
+      if (!loadGameStateFromLocalStorage(true)) {
+        setTimeout(() => {
+          setIsInfoModalOpen(true)
+        }, WELCOME_INFO_MODAL_MS)
+      }
+    } catch (error) {
+      console.warn('LocalStorage is blocked, skipping tutorial modal', error);
+      // 如果跨域读取报错了，我们也假装无事发生，不弹窗
+    }
+  }, []) // 注意：这里加上了 [] 依赖数组，确保这段检查只在页面初次加载时执行一次
 
   useEffect(() => {
     DISCOURAGE_INAPP_BROWSERS &&
